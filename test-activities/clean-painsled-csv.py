@@ -6,12 +6,16 @@ username, we used the fake username 'garminexport_username' so we could
 abuse keyring and store the username as a password.
 """
 #%%
+from dataclasses import MISSING
 from distutils.log import error
 import os
 import shutil
 from datetime import datetime, timezone
 from zoneinfo import ZoneInfo
 import csv
+import datatable as dt
+from datatable import *
+from numpy import NaN
 
 #%%
 activity_dir = os.listdir()
@@ -34,10 +38,9 @@ def rename_painsled_csv(file):
             minute = dtobj_uses.minute
             second = dtobj_uses.second
 
-            new_filename = f"{year}_{month}_{day}_{hour}_{minute}_{second}.csv"
-            os.rename(file, new_filename)
+            return f"{year}_{month}_{day}_{hour}_{minute}_{second}.csv"
+            # os.rename(file, new_filename)
         else:
-            skip
             error("Error: filename does not match expected format")
 
 
@@ -50,10 +53,61 @@ for file in activity_dir:
 # Reset directory pointer as file names have changed
 activity_dir = os.listdir()
 
-# %%
+#%%
 for file in activity_dir:
     if file.endswith(".csv"):
-        with open(file, "r") as f:
-             print("Rows Counted {} in the csv {}:".format(len(f.readlines()) - 1, file))
+        DT = dt.fread(file)
+        print(DT[:, {"Elapsed Time (sec)": "Time"}])
 
+# %%
+test_file = dt.fread("xrscrn_20221018T220042261Z.csv")
+
+#%%
+# Minutes,Torq (N-m),Km/h,Watts,Km,Cadence,Hrate,ID
+test_file.names = {
+    "ElapsedTime (sec)": "Seconds",
+    "Horizontal (meters)" : "Meters",
+    "Speed (m/sec)" : "m_s",
+    "Power (watts)" : "Watts",
+    "Cadence (strokes/min)" : "Cadence",
+    "HRCur (bpm)" : "Hrate",
+    "IntervalType" : "ID"
+    }
+# %%
+test_file.names
+
+# %%
+test_file[:, dt.update(
+    Minutes = f.Seconds/60,
+    Torq = None,
+    Km = f.Meters/1000,
+    Km_h = f.m_s*3.6
+    )]
+
+# %%
+DT = test_file[:, ["Minutes","Torq","Km_h","Watts","Km","Cadence","Hrate","ID", "StrokeCount"]]
+# %%
+DT.names
+
+# %%
+for row in range(0, DT.shape[0]):
+    if row == 0 and DT[row, "StrokeCount"] == 1:
+        DT[row, "ID"] = 0
+        continue
+
+    elif row == 0 and DT[row, "StrokeCount"] == 0:
+        DT[row, "ID"] = 1
+        continue
+
+    elif row != 0 and DT[row, "StrokeCount"] == 0:
+        DT[row, "ID"] = DT[row-1, "ID"] + 1
+        continue
+    elif row != 0 and DT[row, "StrokeCount"] == 1:
+        DT[row, "ID"] = DT[row-1, "ID"] + 1
+        continue
+    elif row != 0 and DT[row, "StrokeCount"] > 1:
+        DT[row, "ID"] = DT[row-1, "ID"]
+        continue
+    elif row == len(PD) - 1 and DT[row, "StrokeCount"] == 0:
+        DT[row, "ID"] = DT[row-1, "ID"] + 1
 # %%
