@@ -8,6 +8,7 @@ authors = ["Callum Arnold <24391445+arnold-c@users.noreply.github.com>"]
 python = "^3.10"
 garminexport = "^0.4.1"
 keyring = "^23.6.0"
+pyprojroot = "^0.2.0"
 
 [tool.poetry.dev-dependencies]
 
