@@ -87,7 +87,7 @@ def correct_painsled_lap_num(DT):
         elif row != 0 and DT[row, "StrokeCount"] > 1:
             DT[row, "ID"] = DT[row-1, "ID"]
             continue
-        elif row == len(PD) - 1 and DT[row, "StrokeCount"] == 0:
+        elif row == DT.shape[0] - 1 and DT[row, "StrokeCount"] == 0:
             DT[row, "ID"] = DT[row-1, "ID"] + 1
     
     return DT
