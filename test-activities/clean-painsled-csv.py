@@ -6,6 +6,7 @@ username, we used the fake username 'garminexport_username' so we could
 abuse keyring and store the username as a password.
 """
 #%%
+from cgi import test
 from dataclasses import MISSING
 from distutils.log import error
 import os
@@ -64,35 +65,50 @@ for file in activity_dir:
 # xrscrn_20221026T221847640Z.csv
 # xrscrn_20221027T222030379Z.csv
 # %%
-test_file = dt.fread("xrscrn_20221026T221847640Z.csv")
+test_file = dt.fread("xrscrn_20221018T220042261Z.csv")
 
 #%%
 # Minutes,Torq (N-m),Km/h,Watts,Km,Cadence,Hrate,ID
 test_file.names = {
     "ElapsedTime (sec)": "Seconds",
     "Horizontal (meters)" : "Meters",
-    # "Speed (m/sec)" : "m_s",
     "Power (watts)" : "Watts",
     "Cadence (strokes/min)" : "Cadence",
     "HRCur (bpm)" : "Hrate",
-    # "IntervalType" : "ID",
-    # "WorkoutIntervalCount" : "ID"
     }
 # %%
 test_file.names
 
 # %%
-test_file[:, dt.update(
-    Minutes = f.Seconds/60,
-    Torq = None,
-    Km = f.Meters/1000,
-    # Km_h = f.m_s*3.6
-    Km_h = None,
-    ID = 0
-    )]
+test_file[:, dt.update(**{
+    "Torq (N-m)" : None,
+    "s_500m" : ifelse(f.Watts == 0, 0, 500*(2.8/f.Watts)**(1/3)),
+    "ID" : 0,
+    "Calc_stroke_dist_m" : ifelse( # Takes multiple conditions
+        shift(f.Meters) == None, f.Meters,
+        f.Meters - shift(f.Meters) <= 0, f.Meters,
+        f.Meters - shift(f.Meters)
+    ),
+    "Calc_time_diff_sec": ifelse(
+        shift(f.Seconds) == None, f.Seconds,
+        f.Seconds - shift(f.Seconds) <= 0, f.Seconds,
+        f.Seconds - shift(f.Seconds)
+    )
+    })]
+    
+test_file[:, dt.update(**{
+    "m_s" : ifelse(f.Watts == 0, 0, 500/f.s_500m),
+    "Cum_dist_m" : f["Calc_stroke_dist_m"].cumsum(),
+    "Minutes" : f["Calc_time_diff_sec"].cumsum()/60,
+    })]
+test_file[:, dt.update(**{
+    "Km/h" : ifelse(f.Watts == 0, 0, f.m_s*3.6),
+    "Km" : f.Cum_dist_m/1000
+    })]
+
 
 # %%
-DT = test_file[:, ["Minutes","Torq","Km_h","Watts","Km","Cadence","Hrate","ID", "StrokeCount"]]
+DT = test_file[:, ["Minutes", "Torq (N-m)","Km/h","Watts","Km","Cadence","Hrate","ID", "StrokeCount"]]
 # %%
 DT.names
 
@@ -122,4 +138,11 @@ for row in range(0, DT.shape[0]):
         DT[row, "ID"] = DT[row-1, "ID"] + 1
 # %%
 PD = DT.to_pandas()
+# %%
+del DT[:, "StrokeCount"]
+# Minutes,Torq (N-m),Km/h,Watts,Km,Cadence,Hrate,ID
+
+
+# %%
+DT.to_csv("2022_10_30_12_00_00.csv")
 # %%
