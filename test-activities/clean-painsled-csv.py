@@ -59,19 +59,24 @@ for file in activity_dir:
         DT = dt.fread(file)
         print(DT[:, {"Elapsed Time (sec)": "Time"}])
 
+
+# xrscrn_20221018T220042261Z.csv
+# xrscrn_20221026T221847640Z.csv
+# xrscrn_20221027T222030379Z.csv
 # %%
-test_file = dt.fread("xrscrn_20221018T220042261Z.csv")
+test_file = dt.fread("xrscrn_20221026T221847640Z.csv")
 
 #%%
 # Minutes,Torq (N-m),Km/h,Watts,Km,Cadence,Hrate,ID
 test_file.names = {
     "ElapsedTime (sec)": "Seconds",
     "Horizontal (meters)" : "Meters",
-    "Speed (m/sec)" : "m_s",
+    # "Speed (m/sec)" : "m_s",
     "Power (watts)" : "Watts",
     "Cadence (strokes/min)" : "Cadence",
     "HRCur (bpm)" : "Hrate",
-    "IntervalType" : "ID"
+    # "IntervalType" : "ID",
+    # "WorkoutIntervalCount" : "ID"
     }
 # %%
 test_file.names
@@ -81,7 +86,9 @@ test_file[:, dt.update(
     Minutes = f.Seconds/60,
     Torq = None,
     Km = f.Meters/1000,
-    Km_h = f.m_s*3.6
+    # Km_h = f.m_s*3.6
+    Km_h = None,
+    ID = 0
     )]
 
 # %%
@@ -92,8 +99,11 @@ DT.names
 # %%
 for row in range(0, DT.shape[0]):
     if row == 0 and DT[row, "StrokeCount"] == 1:
-        DT[row, "ID"] = 0
-        continue
+        if DT[99, "StrokeCount"] > 98:
+            DT[row, "ID"] = 1
+        else:
+            DT[row, "ID"] = 0
+            continue
 
     elif row == 0 and DT[row, "StrokeCount"] == 0:
         DT[row, "ID"] = 1
@@ -110,4 +120,6 @@ for row in range(0, DT.shape[0]):
         continue
     elif row == len(PD) - 1 and DT[row, "StrokeCount"] == 0:
         DT[row, "ID"] = DT[row-1, "ID"] + 1
+# %%
+PD = DT.to_pandas()
 # %%
