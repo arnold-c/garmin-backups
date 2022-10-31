@@ -76,8 +76,6 @@ test_file.names = {
     "Cadence (strokes/min)" : "Cadence",
     "HRCur (bpm)" : "Hrate",
     }
-# %%
-test_file.names
 
 # %%
 test_file[:, dt.update(**{
@@ -90,22 +88,24 @@ test_file[:, dt.update(**{
         f.Meters - shift(f.Meters)
     ),
     "Calc_time_diff_sec": ifelse(
-        shift(f.Seconds) == None, f.Seconds,
-        f.Seconds - shift(f.Seconds) <= 0, f.Seconds,
-        f.Seconds - shift(f.Seconds)
+        shift(f["TimeStamp (sec utc)"]) == None,
+        f["Seconds"],
+        f["TimeStamp (sec utc)"] - shift(f["TimeStamp (sec utc)"])
     )
     })]
     
 test_file[:, dt.update(**{
     "m_s" : ifelse(f.Watts == 0, 0, 500/f.s_500m),
     "Cum_dist_m" : f["Calc_stroke_dist_m"].cumsum(),
-    "Minutes" : f["Calc_time_diff_sec"].cumsum()/60,
+    "Cum_time_sec" : f["Calc_time_diff_sec"].cumsum()
     })]
 test_file[:, dt.update(**{
     "Km/h" : ifelse(f.Watts == 0, 0, f.m_s*3.6),
-    "Km" : f.Cum_dist_m/1000
+    "Km" : f.Cum_dist_m/1000,
+    "Minutes" : f.Cum_time_sec/60
     })]
 
+PD = test_file.to_pandas()
 
 # %%
 DT = test_file[:, ["Minutes", "Torq (N-m)","Km/h","Watts","Km","Cadence","Hrate","ID", "StrokeCount"]]
@@ -140,8 +140,6 @@ for row in range(0, DT.shape[0]):
 PD = DT.to_pandas()
 # %%
 del DT[:, "StrokeCount"]
-# Minutes,Torq (N-m),Km/h,Watts,Km,Cadence,Hrate,ID
-
 
 # %%
 DT.to_csv("2022_10_30_12_00_00.csv")
