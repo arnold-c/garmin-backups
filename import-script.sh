@@ -7,3 +7,4 @@ cp ~/Google\ Drive/My\ Drive/Painsled/*.csv ./painsled-activities/original-files
 cp ~/Dropbox/Apps/HRV4Training/*.csv ./hrv4training/
 
 python3 clean-painsled-csv.py
+python3 c2-logbook-export.py
