@@ -111,5 +111,5 @@ def clean_painsled_csv(csv_file, input_dir_path, output_dir_path):
 #%%
 for file in activity_dir:
     if file.startswith("xrscrn_") and file.endswith(".csv"):
-        test_DT = clean_painsled_csv(file, input_dir_path, output_dir_path)
+        clean_painsled_csv(file, input_dir_path, output_dir_path)
         print("Cleaned " + file)

@@ -56,7 +56,13 @@ Logbook](https://log.concept2.com/) and following the steps below:
 Once you have an access token, you will want to create a directory in your
 repository that the logbook data will be downloaded to. By default, all files
 will be saved to the folder `./ergdata-activities` (which will need to be
-created), but this can be changed by updating the variable `output_dir_path` in [c2-logbook-export.py](c2-logbook-export.py).
+created), but this can be changed by updating the variable `output_dir_path` in
+[c2-logbook-export.py](c2-logbook-export.py). Sometimes the `*.fit` files are
+corrupted so I also download the activities as `*.csv` files. These are saved to
+`./ergdata-activities/original-csv` (which will also need to be created prior to
+first run), before a cleaning script is run to calculate lap numbers and format
+for Golden Cheetah import (see notes about [PowerTap CSV format](#about) for
+Painsled activities above).
 
 #### Passwords
 
