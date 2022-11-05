@@ -27,10 +27,10 @@ import activities into Garmin Connect.
 ## Set Up
 #### Packages
 
-You will need to run the following command in the command line to install
-all dependencies, and may want to create a virtual environment for this project.
-I had issues with the pip version of `{datatable}`, so I installed the
-development build from GitHub.
+You will need to run the following command in the command line to install all
+dependencies, and may want to create a virtual environment for this project. I
+had issues with the pip version of `{datatable}`, so I installed the development
+build from GitHub.
 
 ```
 pip install pyenv pyenv-virtualenv
@@ -43,15 +43,16 @@ pip install git+https://github.com/h2oai/datatable
 #### Concept2 Logbook
 
 If you use ErgData with the Concept2 Logbook and want to download the Concept2
-Logbook stroke-by-stroke data, you will need to create an access token.
-You can do this by navigating to the [Concept2
-Logbook](https://log.concept2.com/) and following the steps below:
+Logbook stroke-by-stroke data, you will need to create an access token. You can
+do this by navigating to the [Concept2 Logbook](https://log.concept2.com/) and
+following the steps below:
 
 1. Click on the avatar in the top right corner and select "Edit Profile"
 2. Select the "Applications" tab
 3. Select the "Connect to Concept2 Logbook API" button
 4. Save the access token that is generated
-   1. See [the Passwords section](#passwords) below to save this token to your keychain
+   1. See [the Passwords section](#passwords) below to save this token to your
+      keychain
 
 Once you have an access token, you will want to create a directory in your
 repository that the logbook data will be downloaded to. By default, all files
@@ -90,4 +91,4 @@ zsh run.sh
 ```
 
 To stop certain scripts from being included, you can comment out the relevant
-scripts in [`import-script.sh`](import-script.sh).
+scripts in [`run.sh`](run.sh).
