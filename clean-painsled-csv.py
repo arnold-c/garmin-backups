@@ -21,13 +21,16 @@ output_dir_path = str(here("painsled-activities/cleaned-files"))
 def rename_painsled_csv_vars(file_name, input_dir_path):
     file = input_dir_path + "/" + file_name
     DT = dt.fread(file)
-    
+    if "HRCur (bpm)" in DT.names:
+        DT.names = {"HRCur (bpm)" : "Hrate"}
+    else:
+        DT[:, dt.update(**{"Hrate" : None})]
+
     DT.names = {
         "ElapsedTime (sec)": "Seconds",
         "Horizontal (meters)" : "Meters",
         "Power (watts)" : "Watts",
         "Cadence (strokes/min)" : "Cadence",
-        "HRCur (bpm)" : "Hrate"
     }
 
     return DT
